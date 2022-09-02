@@ -1,7 +1,7 @@
 use cust;
 SELECT * FROM customer;
 
-SELECT * FROM customer WHERE age > 30;
+SELECT * FROM customer WHERE age > 3;
 
 SELECT * FROM CUSTOMER WHERE age <= 30;
 
