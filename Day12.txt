@@ -1,0 +1,204 @@
+-- PROCEDURE
+
+CREATE OR REPLACE PROCEDURE welcome
+AS
+BEGIN
+    dbms_output.put_line('Hi Everyone!, Welcome to Data Analytics World! - ExcelR');
+END;
+/
+
+EXECUTE welcome;
+
+BEGIN
+    welcome;
+END;
+/
+
+-- 3 Types of parameters
+-- IN   - INPUT to the procedure
+-- OUT -OUTPUT from the procedure
+-- IN OUT  - does both
+
+
+DECLARE
+    x integer;
+    y integer;
+    res integer;
+PROCEDURE findMax(a IN integer, b IN integer, c OUT integer) IS
+BEGIN
+    IF a > b THEN
+        c := a;
+    ELSE 
+        c := b;
+    END IF;
+END;
+BEGIN
+    x := 900;
+    y := 100;
+    findMax(x,y,res);
+    dbms_output.put_line('Maximum of 90 , 100 is : ' || res);
+END;
+/
+
+
+
+DECLARE
+    a integer ;
+PROCEDURE squareNum(x IN OUT integer) IS
+BEGIN
+    x := x * x;
+END;
+BEGIN
+    a := 1000;
+    squareNum(a);
+    dbms_output.put_line(' Square of 10 is : ' || a);
+END;
+/
+
+
+
+
+DECLARE
+    a integer;
+    res integer;
+PROCEDURE squareNum(x IN integer, y OUT integer) IS
+BEGIN
+    y := x * x;
+END;
+BEGIN
+    a := 100;
+    squareNum(a,res);
+    dbms_output.put_line(' Square of 10 is : ' || res);
+END;
+/
+
+
+-- FUNCTION
+-- function is same as a procedure except that it returns a value
+
+
+CREATE TABLE CUSTOMER(
+ID INT NOT NULL,
+NAME  VARCHAR2(100),
+AGE INT,
+CITY VARCHAR2(20),
+BALANCE DECIMAL(10,2)
+);
+
+INSERT INTO CUSTOMER VALUES(1000,'Rajesh Kumar',30,'Chennai',10000);
+INSERT INTO CUSTOMER VALUES(1001,'Ashwin Sekar',25,'Bangalore',20000);
+INSERT INTO CUSTOMER VALUES(1002,'Tharani Priya',35,'Hyderabad',30000);
+INSERT INTO CUSTOMER VALUES(1003,'Vignesh',36,'Pune',40000);
+INSERT INTO CUSTOMER VALUES(1003,'Dhivya',40,'Delhi',50000);
+
+
+
+
+SELECT * FROM CUSTOMER;
+
+
+CREATE OR REPLACE FUNCTION totalCustomers
+RETURN integer IS
+    total integer;
+BEGIN
+    SELECT COUNT(*) into total FROM CUSTOMER;
+    
+    RETURN total;
+END;
+/
+
+
+DECLARE 
+    r integer;
+BEGIN
+    r := totalCustomers();
+    dbms_output.put_line('Total no of customers: '|| r);
+END;
+/
+
+
+
+
+
+
+DECLARE
+    a integer;
+    b integer;
+    c integer;
+FUNCTION findMaxValue(x IN integer, y IN integer)
+RETURN integer IS
+    z integer;
+BEGIN
+    IF x > y THEN
+        z := x;
+    ELSE 
+        z := y;
+    END IF;
+    
+    RETURN z;
+END;
+BEGIN
+    a := 7117;
+    b := 8101;
+    c := findMaxValue(a,b);
+    -- dbms_output.put_line('Maximum of (77,80) is : ' || c);
+    -- dbms_output.put_line('Maximum of (a,b) is : ' || c);
+    dbms_output.put_line('Maximum of (' || a || ',' || b || ') is : ' || c);
+END;
+/
+
+
+
+-- DIFFERENCE BETWEEN PROCEDUE AND FUCNTION
+
+
+CREATE TABLE ALUMNI (
+ID INT NOT NULL,
+NAME  VARCHAR2(100),
+AGE INT,
+CITY VARCHAR2(20),
+BALANCE DECIMAL(10,2)
+);
+
+SELECT * FROM ALUMNI;
+
+CREATE OR REPLACE TRIGGER customer_to_alumni
+BEFORE DELETE ON CUSTOMER
+FOR EACH ROW
+BEGIN
+    INSERT INTO ALUMNI VALUES(:OLD.ID, :OLD.NAME, :OLD.AGE,:OLD.CITY, :OLD.BALANCE);
+    dbms_output.put_line('Data has been loaded into the ALUMNI table and gets deleted from CUSTOMER table');
+END;
+/
+
+SELECT * FROM CUSTOMER;
+DELETE FROM CUSTOMER WHERE ID=1000;
+DELETE FROM CUSTOMER WHERE ID=1003;
+
+CREATE TABLE CUSTOMER_CHANGE_HISTORY (
+ID INT NOT NULL,
+NAME  VARCHAR2(100),
+AGE INT,
+CITY VARCHAR2(20),
+BALANCE DECIMAL(10,2)
+);
+
+
+CREATE OR REPLACE TRIGGER update_customer_data
+BEFORE UPDATE ON CUSTOMER
+FOR EACH ROW
+DECLARE
+    salary_diff INTEGER;
+BEGIN
+    salary_diff := :NEW.balance - :OLD.balance;
+    dbms_output.put_line('Old Balance : '|| :OLD.BALANCE);
+    dbms_output.put_line('New Balance : '|| :NEW.BALANCE);
+    dbms_output.put_line('Banalce Difference : '|| salary_diff);
+    
+    INSERT INTO CUSTOMER_CHANGE_HISTORY VALUES(:OLD.ID, :OLD.NAME, :OLD.AGE,:OLD.CITY, :OLD.BALANCE);
+END;
+/
+
+SELECT * FROM CUSTOMER_CHANGE_HISTORY;
+
+UPDATE CUSTOMER SET BALANCE=200000 WHERE ID=1001;
